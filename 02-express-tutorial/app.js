@@ -1,35 +1,44 @@
 const express=require('express')
 const app = express();
 const path = require('path');
-const {products}=require('./data')
-app.use(express.static('./public'));
+const {products,people}=require('./data')
+const logger = require('./logger')
+
+app.use(express.static('./methods-public'));
+app.use(express.urlencoded({extended:false}))
+app.use([logger])
+
+
 app.get('/',(req,res)=>{
-    res.json(products)
+    console.log('NO More ')
+    res.send('<h1>Middleware</h1>')
 })
-app.get('/about',(req,res)=>{
-    const newProducts = products.map((product)=>{
-        const {id,name,image } = product
-        return{id,name,image}
-    })
-    res.json(newProducts)
-})
-app.get('/singleProduct/1',(req,res)=>{
-    const singleProduct = products.find((products)=>products.id===1)
-    res.json(singleProduct)
-})
-app.get('/new/ok',(req,res)=>{
-    console.log(req.query)
-    const {productID} = req.query
 
-    let sortedProducts=[...products]
-    if(productID){
-        sortedProducts=sortedProducts.filter((product)=>{
-            return product.name.startsWith(productID)
-        })
+app.get('/api/people',(req,res)=>{
+    res.json({success:true,data:people})
+})
+
+app.post('/api/people',(req,res)=>{
+    const { name }=req.body
+    res.send({success:false,person:name})
+})
+
+
+
+app.get('/hello',(req,res)=>{
+    console.log('No')
+    res.sendFile('index.html',{root:"methods-public"})
+})
+
+
+ app.post('/login',(req,res)=>{
+    const {name}=req.body
+    if(name){
+        return res.status(200).send(`<h1>Every One is Alright ${name} </h1>`)
     }
+    res.send("Please Do your job properly")
 
-
-    res.send('<h1>Ok </h1>')
 })
+
 
 app.listen(5000)
